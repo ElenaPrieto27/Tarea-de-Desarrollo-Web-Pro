@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<header>
+    <style>
+        .padre {
+            background-color: #fafafa;
+            margin: 1rem;
+            padding: 1rem;
+            border: 2px solid #ccc;
+         /* IMPORTANTE */
+            text-align: center;
+        }
+        ul#horizontal-list li{
+            display:inline;
+        }
+        ul#horizontal-list button{
+            margin-left: 10px;
+            width: 40px;
+        }
+        .cuadro{
+            width: 30px;
+            margin-right: 4px;
+            border: 4px solid #886ba0;
+            border-radius: 5px;
+            background: rgb(255, 255, 255);
+            color: rgb(121, 121, 238);
+            height: 30px;
+            text-align: center;
+            padding-top: 3px;
+            padding-left: 3px;
+            font-size: 1em;
+        }
+        .rojo{
+            background-color: red;
+        }
+        .verde{
+            background-color: green;
+        }
+    </style>
+
+</header>
+<body bgcolor="#afaead">
+
+    <div id="app" class="container-fluid padre ">
+        <div v-if="win" class="text-fluid">
+            <img src="https://i.gifer.com/IBw.gif" alt="">
+        </div>
+        <div v-if="lost" class="text-fluid">
+            <img src="https://pa1.narvii.com/7411/b8fe430e44ef292748ecf5ee586e526d8630047ar1-535-535_hq.gif" alt="">
+        </div>
+
+
+
+        <div class="row">
+
+            <div class="col-sm-12">
+                <h3 class="text-center text-info">JUEGO DEL AHORCADO</h3>
+
+                <!---Letras digitadas-->
+                <ul id="horizontal-list">
+                    <button v-for="item in palabras_escritas" type="button" class="btn btn-primary cuadro">
+                        <span>{{item}}</span>
+                    </button>
+                </ul>
+
+
+
+            </div> <!--End de la 1ra columna-->
+            
+            <div class="container text-cente">
+
+                <div class="col-sm-12">
+
+                    <!--Teclado-->
+                    <span>{{palabra_generada}}</span>
+                    <span v-for="(letra, index) in letras">
+                        <button v-on:click="comparar(letra,index)" v-bind:disabled="botones[index]" v-blind:class="{verde:color_botones[index]=='verde',rojo:color_botones[index]=='rojo'}">
+                            {{letra}}
+                        </button>
+                    </span>
+
+
+
+
+                </div> <!--End 2nda columna-->
+
+            </div> <!--End container center-->
+
+        </div> <!--End row-->
+
+        <div class="col-xs-8 col-sm-8 col-md-8">
+
+        <!--Imagen-->
+        <div>
+            <br>
+            <img v-bind:src="'imgAh/'+contador_errores+'.png'" alt="">
+        </div>
+
+        </div> <!--End 3ra columna-->
+        
+        <div class="padre">
+            <!--inputs-->
+
+            <label for="">ACIERTOS</label>
+            <input type="text" class="form-control" v-model="contador_aciertos">
+            <label for="">ERRORES</label>
+            <input type="text" class="form-control" v-model="contador_errores">
+            <button v-on:click="generarAleatorio">NUEVO JUEGO</button>
+
+        </div>
+
+    </div>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script>
+    var app = new Vue({
+        el:'#app',
+        data:{
+            game:true,
+            win:false,
+            lost:false,
+            contador_aciertos:0,
+            contador_errores:0,
+            aleatorio:0,
+            palabras_escritas:[],
+            botones:[],
+            color_botones:[],
+            letras:"ABCDEFGHIJKLMNÑOPQRSTUVWXYZ",
+            frutas:['manzana','piña','cereza','sandia','limon','durazno']
+        },
+        methods:{
+            generarAleatorio:function(){
+                this.game = true
+                this.win = false
+                this.lost = false
+                this.palabras_escritas = []
+                this.contador_aciertos = 0
+                this.contador_errores = 0
+                this.color_botones = []
+                this.botones = []
+
+                this.aleatorio = Math.floor(Math.random()*this.frutas.length)
+                for(var i = 0;i<this.frutas[this.aleatorio].length; i++){
+                    this.palabras_escritas.push('')
+                }
+                return this.aleatorio
+            },
+            comparar:function(caracter, posicion){
+                if(this.game){
+                    contadorFlag = 0
+                    
+                    this.botones[posicion]=true
+                    for(i=0;i<=this.palabra_generada.length;i++){
+                        if(caracter.toLowerCase()==this.palabra_generada[i]){
+                            this.palabras_escritas[i] = caracter
+                            contadorFlag++
+                            this.contador_aciertos++
+                        }
+                    }
+                    if(contadorFlag==0){
+                        this.contador_errores++
+                        this.color_botones[posicion] = 'rojo'
+                    }
+                    else{
+                        this.color_botones[posicion] = 'verde'
+                    }
+
+                    if(this.contador_aciertos==this.palabra_generada.length){
+                        this.win = true
+                        this.game = false
+                    }
+
+                    if(this.contador_errores==5){
+                        this.lost = true
+                        this.game = false
+                    }
+                }
+            }
+
+        },
+        computed:{
+            palabra_generada:function(){
+                return this.frutas[this.aleatorio]
+            }
+          
+
+        },
+        created:function(){
+            this.generarAleatorio()
+        }
+    })
+</script>
+
+<footer>
+
+</footer>
